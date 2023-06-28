@@ -20,7 +20,7 @@ class ModuleMain(PluginModuleBase):
         if command == 'broad_list':
             ret = {'ret':'success', 'ch_list':Narrtv.ch_list()}
         elif command == 'play_url':
-            url = ToolUtil.make_apikey_url(f"/{P.package_name}/api/url.m3u8?ch_id={arg1}&ch_title={arg2}")
+            url = ToolUtil.make_apikey_url(f"/{P.package_name}/api/url.m3u8?ch_id={arg1}")
             ret = {'ret':'success', 'data':url, 'title': arg2}
         return jsonify(ret)
 
