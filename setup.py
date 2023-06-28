@@ -5,7 +5,7 @@ setting = {
     'home_module': None,
     'menu': {
         'uri': __package__,
-        'name': 'Narrtv',
+        'name': 'NarrTV',
         'list': [
             {
                 'uri': 'main/setting',
