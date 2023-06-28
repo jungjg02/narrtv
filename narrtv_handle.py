@@ -15,16 +15,15 @@ class Narrtv:
     def ch_list(cls):
         channels = []
         sport_categories = {
-            '1': '',
-            '2': '축구',
-            '3': '야구',
-            '4': '농구',
-            '5': '배구',
-            '6': '하키',
-            '7': '테니스',
-            '8': '럭비',
-            '9': 'UFC',
-            '10': 'E스포츠'
+            '2': 'soccer',
+            '3': 'baseball',
+            '4': 'basketball',
+            '5': 'volleyball',
+            '6': 'hockey',
+            '7': 'tennis',
+            '8': 'football',
+            '9': 'ufc',
+            '10': 'egame'
         }
 
         data = requests.get(f"{cls._url}/BR/nene03/schedule5.asp?version=1",
