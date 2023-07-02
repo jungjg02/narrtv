@@ -5,7 +5,7 @@ setting = {
     'home_module': None,
     'menu': {
         'uri': __package__,
-        'name': 'NarrTV',
+        'name': '나르TV',
         'list': [
             {
                 'uri': 'main/setting',
@@ -14,6 +14,13 @@ setting = {
             {
                 'uri': 'main/list',
                 'name': '목록',
+            },
+            {
+                'uri': 'manual',
+                'name': '매뉴얼',
+                'list': [
+                    {'uri':'README.md', 'name':'README.md'},
+                ]
             },
             {
                 'uri': 'log',
