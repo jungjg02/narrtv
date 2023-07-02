@@ -1,15 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
+<style type="text/css">
+  .table {
+    table-layout: fixed;
+  }
+</style>
 
 <div>
-  {{ macros.m_button_group([['list_refresh_load_btn', '새로고침']])}}
-  {{ macros.m_row_start('5') }}
-  {{ macros.m_row_end() }}
+  {{ macros.m_button_group([['list_channel_reload_btn', '새로고침']])}}
+  <p id="list_info" class="mt-2 mb-1 text-sm small text-muted">마지막 업데이트:</p>
+  <div id="list_div" class="mb-3">
+    <table id="result_table" class="table table-sm table-striped table-hover">
+        <thead class="thead-dark"><tr>
+          <th style="width:5%; text-align:center;" class="text-truncate"></th>
+          <th style="width:10%; text-align:left;" class="text-truncate">타입</th>
+          <th style="width:10%; text-align:left;" class="text-truncate">종류</th>
+          <th style="width:10%; text-align:left;" class="text-truncate">시간</th>
+          <th style="width:50%; text-align:left;" class="text-truncate">채널</th>
+          <th style="width:15%; text-align:center;" class="text-truncate">Action</th>
+        </tr></thead>
+        <tbody id="channel-list">
+        <template id="channel-template"><tr>
+          <td scope="col" style="width:5%; text-align:center;" id="channel-idx" class="text-truncate"></td>
+          <td scope="col" style="width:10%; text-align:left;" id="channel-type" class="text-truncate"></td>
+          <td scope="col" style="width:10%; text-align:left;" id="channel-category" class="text-truncate"></td>
+          <td scope="col" style="width:10%; text-align:left;" id="channel-time" class="text-truncate"></td>
+          <td scope="col" style="width:50%; text-align:left;" id="channel-name" class="text-truncate"></td>
+          <td scope="col" style="width:15%; text-align:center;" id="channel-action" class="text-truncate"></td>
+        </tr></template>
+      </tbody>
+    </table>
+  </div>
 
-
-  {{ macros.m_row_start('5') }}
-  {{ macros.m_row_end() }}
-<div id="list_div"></div>
 </div> <!--전체-->
 <form name="playform">
   <input type="hidden" id="play_title" name="play_title">
@@ -22,34 +44,30 @@ var package_name = "{{arg['package_name'] }}";
 var sub = "{{arg['sub'] }}";
 var current_data = null;
 
+var channelTemplate = document.querySelector('#channel-template');
+var channelScroller = document.querySelector('#channel-list');
+
 $(document).ready(function(){
-  //hideMenuModule();
-  
-  globalSendCommand('broad_list', null, null, null, function(ret){
-    make_list(ret.ch_list);
-  });
-  make_list(null);
+  load_channel_list();
 });
 
-$("body").on('click', '#list_refresh_load_btn', function(e){
-  e.preventDefault();
-
+function load_channel_list() {
+  reset_channel_list('로딩중...');
   globalSendCommand('broad_list', null, null, null, function(ret){
-    make_list(ret.ch_list);
+    $('#list_info').html(`마지막 업데이트: ${ret.updated_at}`);
+    make_channel_list(ret.list);
   });
-  make_list(null);
-});
+}
 
-
-$("body").on('click', '#json_btn', function(e){
+$("body").on('click', '#list_channel_reload_btn', function(e) {
   e.preventDefault();
-  showModal(current_data[$(this).data('idx')]);
+  load_channel_list();
 });
 
 
 $("body").on('click', '#play_btn', function(e){
   e.preventDefault();
-  globalSendCommand('play_url', $(this).data('id'), $(this).data('name'), null, function(ret){
+  globalSendCommand('play_url', $(this).data('id'), $(this).data('name'), $(this).data('url'), function(ret){
     if (ret.data == null) {
       notify('에러', 'danger');
       return;
@@ -71,7 +89,7 @@ $("body").on('click', '#play_btn', function(e){
 
 $("body").on('click', '#play_url_btn', function(e){
   e.preventDefault();
-  globalSendCommand('play_url', $(this).data('id'), $(this).data('name'), null, function(ret){
+  globalSendCommand('play_url', $(this).data('id'), $(this).data('name'), $(this).data('url'), function(ret){
     if (ret.data == null) {
       notify('에러', 'danger');
       return;
@@ -84,42 +102,41 @@ $("body").on('click', '#play_url_btn', function(e){
   });
 });
 
-
-function make_list(data) {
-  current_data = data;
-  str = '';
-  str = '<table id="result_table" class="table table-sm  tableRowHover "  ><thead class="thead-dark"><tr> \
-    <th style="width:5%; text-align:center;">IDX</th> \
-    <th style="width:10%; text-align:left;">시간</th> \
-    <th style="width:20%; text-align:left;">카테고리</th> \
-    <th style="width:35%; text-align:left;">경기명</th> \
-    <th style="width:15%; text-align:center;">Action</th> \
-    </tr></thead><tbody id="list">';
-  
-  count = 0;
+function make_channel_list(data) {
   if (data == null) {
-    str += '<tr><td colspan="6"><h4>로딩중..</h4></td></tr>';
-  } else {
-    for(i in data) {
-      console.log(data[i])
-      str += '<tr class="chover" style="cursor: pointer;" data-toggle="collapse" data-target="#collapse_' + i + '" aria-expanded="true" >';
-      str += '<td style="width:5%; text-align:center;">'+(parseInt(i)+1)+'</td>';
-      str += '<td scope="col" style="width:10%; text-align:left;">'+ data[i].time + '</td>';
-      str += '<td scope="col" style="width:20%; text-align:left;">'+ data[i].category + '</td>';
-      str += '<td scope="col" style="width:35%; text-align:left;">'+ data[i].name + '</td>';
-      buttons = '';
-      buttons += j_button('play_btn', 'PLAY', {'id':data[i].id, 'name':data[i].name}, 'success', false, true);
-      buttons += j_button('play_url_btn', 'URL', {'id':data[i].id, 'name':data[i].name}, 'info', false, true);
-      buttons = j_button_group(buttons);
-      str += '<td scope="col" style="width:15%; text-align:center;">' + buttons + '</td>';
-      str += '</tr>';
-      count++;
-    }
-    if (count == 0) str += '<tr><td colspan="6"><h4>데이터가 없습니다.</h4></td></tr>';
+    return;
   }
-  str += '</table>';
-  $("#list_div").html(str);
-  return
+  reset_channel_list();
+
+  count = 0;
+  for (i in data) {
+    let channel_clone = channelTemplate.content.cloneNode(true);
+    channel_clone.querySelector('#channel-idx').innerHTML = parseInt(i)+1;
+    channel_clone.querySelector('#channel-type').innerHTML += data[i].type;
+    channel_clone.querySelector('#channel-category').innerHTML +=  data[i].category || "";
+    channel_clone.querySelector('#channel-time').innerHTML = data[i].time || "";
+    channel_clone.querySelector('#channel-name').innerHTML += data[i].name;
+    channel_clone.querySelector('#channel-name').title = data[i].channel_id;
+
+    buttons = '';
+    if (data[i].type == "SPORTS") {
+      buttons += j_button('play_btn', 'PLAY', {'id':data[i].channel_id, 'name':data[i].name, 'url':data[i].url}, 'success', false, true);
+    }
+    buttons += j_button('play_url_btn', 'URL', {'id':data[i].channel_id, 'name':data[i].name, 'url':data[i].url}, 'info', false, true);
+    buttons = j_button_group(buttons);
+    channel_clone.querySelector('#channel-action').innerHTML = buttons;
+
+    channelScroller.appendChild(channel_clone);
+    count++;
+  }
+  if (count == 0) reset_channel_list('데이터가 없습니다.');
+}
+
+function reset_channel_list(msg='') {
+  channelScroller.querySelectorAll('tr').forEach(e => e.remove());
+  if (msg != null && msg != '') {
+    channelScroller.insertAdjacentHTML('beforeend', `<tr><td colspan="6">${msg}</td></tr>`);
+  }
 }
 
 </script>    

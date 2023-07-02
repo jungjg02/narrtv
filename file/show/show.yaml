@@ -1,0 +1,13 @@
+primary: true
+code: narrtv
+title: '[NARRTV]'
+year: 2023
+genres: Live
+posters: https://cdn.discordapp.com/attachments/877784202651787316/1124900470088020029/narrtv.png
+summary: ''
+extras:
+- mode: "m3u8"
+  type: "featurette"
+  title: "[축구] WorldCup"
+  thumb: "https://lifetv365.com/sites/gugutv/assets/images/events/1.png"
+  param: "https://streamamg-power02.akamaized.net/hls/live/2042620/0_g7tm5h1t/0_g7tm5h1t_1/chunklist.m3u8"
