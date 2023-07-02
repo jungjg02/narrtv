@@ -40,7 +40,7 @@ class Narrtv:
             live_status = x.find(class_="badge badge-secondary video-s")
             if live_status:
                 image_src = x.select_one('div.col-3 img')['src']
-                logo = image_src.replace("./img/", f"{cls._url}/img/")
+                logo = image_src.replace("./img/", f"{cls._url}/BR/nene03/img/")
                 category=image_src.replace("./img/", '').replace(".png", '')
                 league = x.select_one('div.col-3').text.strip()
                 home_team, time, away_team = [x.select_one('div.col.text-center p:nth-of-type(2)').text.strip() for x in x.select('div.col.text-center')[:3]]
